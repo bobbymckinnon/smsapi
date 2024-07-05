@@ -1,10 +1,10 @@
 FROM perl
 WORKDIR /opt/smsapi
 COPY . .
-#RUN cpan Mojolicious::Plugin::OpenAPI
-#RUN cpan Mojolicious::Plugin::SwaggerUI
-#RUN cpan OpenAPI::Client
-#RUN cpanm YAML::XS
+RUN cpanm -n Mojolicious::Plugin::OpenAPI
+RUN cpanm -n Mojolicious::Plugin::SwaggerUI
+RUN cpanm -n OpenAPI::Client
+RUN cpanm -n YAML::XS
 
 RUN cpanm --installdeps -n .
 EXPOSE 3000

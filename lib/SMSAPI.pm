@@ -15,12 +15,11 @@ sub startup ($self) {
 
     $self->plugin(
         SwaggerUI => {
-            route => $self->routes()->any('api-cc'),
+            route => $self->routes()->any('api-api'),
             url => "/api/v1",
             title => "SMS API"
         }
     );
-
 }
 
 1;
