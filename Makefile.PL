@@ -10,7 +10,7 @@ WriteMakefile(
     'Mojolicious::Plugin::OpenAPI',
     'Mojolicious::Plugin::SwaggerUI',
     'OpenAPI::Client',
-    'YAML::XS'
+    'YAML::XS',
   },
   test => {TESTS => 't/*.t'}
 );

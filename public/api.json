@@ -6,20 +6,11 @@
   },
   "paths": {
     "/messages": {
-      "get": {
-        "operationId": "sms",
-        "x-mojo-name": "get_sms",
-        "x-mojo-to": "sms#index",
-        "summary": "List all sms messages from a customer",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "age",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
+      "post": {
+        "operationId": "create_message",
+        "x-mojo-name": "post_message",
+        "x-mojo-to": "message#create",
+        "summary": "Create sms messages for a customer",
         "requestBody": {
           "content": {
             "application/json": {
@@ -29,6 +20,41 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Messages response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "message",
+        "x-mojo-name": "get_message",
+        "x-mojo-to": "message#index",
+        "summary": "List all sms messages from a customer",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Messages response",

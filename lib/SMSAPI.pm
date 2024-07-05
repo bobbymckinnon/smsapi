@@ -1,7 +1,35 @@
 package SMSAPI;
 use Mojo::Base 'Mojolicious', -signatures;
-use Mojo::Pg;
-use Data::Dumper qw(Dumper);
+
+use Mojo::File;
+use Mojo::SQLite;
+use LinkEmbedder;
+use SMSAPI::Model::Message;
+
+has sqlite => sub {
+    my $app = shift;
+
+    # determine the storage location
+    my $file = $app->config->{database} || 'db/smsapi.db';
+    unless ($file =~ /^:/) {
+        $file = Mojo::File->new($file);
+        unless ($file->is_abs) {
+            $file = $app->home->child("$file");
+        }
+    }
+
+    my $sqlite = Mojo::SQLite->new
+        ->from_filename("$file")
+        ->auto_migrate(1);
+
+    # attach migrations file
+    $sqlite->migrations->from_file(
+        $app->home->child('db/smsapi.sql')
+    )->name('smsapi');
+
+    return $sqlite;
+};
+
 
 # This method will run once at server start
 sub startup ($self) {
@@ -10,20 +38,6 @@ sub startup ($self) {
 
     # Load configuration from config file
     my $config = $self->plugin('JSONConfig');
-
-    #my $pg = Mojo::Pg->new("postgresql://$config->{db_user}:$config->{db_pass}\@/$config->{db_db}/smsapi");
-    my $pg = Mojo::Pg->new("postgresql://admin:nDQiMsGqZn.6QHXozshz-WXN\@/nsurio-hc-dev.proxy-cdhrswuj4g6s.eu-central-1.rds.amazonaws.com/nsurio-hc-dev-directus");
-    
-    print STDERR Dumper($pg);
-
-    my $db = $pg->db;
-
-    $self->helper( db =>
-        sub {
-            print STDERR Dumper($db);
-            return $db;
-        }
-    );
 
     # Load the "api.yaml" specification from the public directory
     $self->plugin(
@@ -34,11 +48,39 @@ sub startup ($self) {
 
     $self->plugin(
         SwaggerUI => {
-            route => $self->routes()->any('api-api'),
+            route => $self->routes()->any('api'),
             url => "/api/v1",
             title => "SMS API"
         }
     );
+
+    $self->helper(model => sub {
+        my $c = shift;
+
+        return SMSAPI::Model::Message->new(
+            sqlite => $c->app->sqlite,
+        );
+    });
+
+    $self->helper(user => sub {
+        my ($c, $name) = @_;
+        $name ||= $c->stash->{name} || $c->session->{name};
+
+        return {} unless $name;
+
+        my $model = $c->model;
+        my $user = $model->user($name);
+        unless ($user) {
+            $model->add_user($name);
+            $user = $model->user($name);
+        }
+
+        return $user;
+    });
+
+    my $r = $self->routes;
+
+    $r->get('/messages')->to('Message#show_add')->name('');
 }
 
 1;
