@@ -5,6 +5,8 @@ RUN cpanm -n Mojolicious::Plugin::OpenAPI
 RUN cpanm -n Mojolicious::Plugin::SwaggerUI
 RUN cpanm -n OpenAPI::Client
 RUN cpanm -n YAML::XS
+RUN cpanm -n Data::Dumper
+RUN cpanm -n Mojo::Pg
 
 RUN cpanm --installdeps -n .
 EXPOSE 3000
