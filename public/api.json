@@ -63,11 +63,8 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "messages": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
+                    "item": {
+                      "type": "object"
                     }
                   }
                 }

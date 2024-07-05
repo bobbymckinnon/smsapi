@@ -64,9 +64,13 @@ sub startup ($self) {
 
     $self->helper(user => sub {
         my ($c, $name) = @_;
+        print STDERR "-----1---{$name}\n";
+
         $name ||= $c->stash->{name} || $c->session->{name};
 
         return {} unless $name;
+        $name = 'dan';
+        print STDERR "-----2---{$name}\n";
 
         my $model = $c->model;
         my $user = $model->user($name);
