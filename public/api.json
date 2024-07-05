@@ -5,12 +5,12 @@
     "title": "SMS API"
   },
   "paths": {
-    "/pets": {
+    "/messages": {
       "get": {
-        "operationId": "getPets",
-        "x-mojo-name": "get_pets",
-        "x-mojo-to": "pet#list",
-        "summary": "Finds pets in the system",
+        "operationId": "sms",
+        "x-mojo-name": "get_sms",
+        "x-mojo-to": "sms#index",
+        "summary": "List all sms messages from a customer",
         "parameters": [
           {
             "in": "query",
@@ -31,13 +31,13 @@
         },
         "responses": {
           "200": {
-            "description": "Pet response Test",
+            "description": "Messages response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "pets": {
+                    "messages": {
                       "type": "array",
                       "items": {
                         "type": "object"
