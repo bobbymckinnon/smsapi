@@ -11,9 +11,10 @@ create table customers (
 
 create table messages (
   id integer primary key autoincrement,
-  title text,
-  purchased integer not null default 0,
   customer_id integer not null,
+  message_body text,
+  telephone_number text not null,
+  status integer not null default 0,
   foreign key(customer_id) references customers(id)
 );
 

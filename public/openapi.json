@@ -13,17 +13,14 @@
         "summary": "List all registered customers",
         "responses": {
           "200": {
-            "description": "Customers response",
+            "description": "Customers Response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "customers": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
+                    "items": {
+                      "type": "array"
                     }
                   }
                 }
@@ -44,11 +41,39 @@
         "summary": "Show a registered customer",
         "responses": {
           "200": {
-            "description": "Customer response",
+            "description": "Get Customer Response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/messages": {
+      "get": {
+        "operationId": "messages",
+        "x-mojo-name": "get_messages",
+        "x-mojo-to": "message#list",
+        "summary": "List messages for a registered customer",
+        "responses": {
+          "200": {
+            "description": "Messages Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array"
+                    }
+                  }
                 }
               }
             }
@@ -64,7 +89,7 @@
         "operationId": "create_message",
         "x-mojo-name": "post_message",
         "x-mojo-to": "message#create",
-        "summary": "Create sms messages for a customer",
+        "summary": "Create a sms messages for a customer, queue message to AWS SQS for processing",
         "requestBody": {
           "content": {
             "application/json": {
@@ -76,22 +101,20 @@
         },
         "responses": {
           "200": {
-            "description": "Messages response",
+            "description": "Create Message Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "messages": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    }
-                  }
+                  "type": "object"
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "400": {
+            "description": "Invalid Request"
           }
         }
       },
@@ -99,11 +122,11 @@
         "operationId": "message",
         "x-mojo-name": "get_message",
         "x-mojo-to": "message#index",
-        "summary": "List all sms messages from a customer",
+        "summary": "Get one SMS message from a customer",
         "parameters": [
           {
             "in": "query",
-            "name": "name",
+            "name": "id",
             "schema": {
               "type": "string"
             }
@@ -111,7 +134,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Messages response",
+            "description": "Get Message Response",
             "content": {
               "application/json": {
                 "schema": {

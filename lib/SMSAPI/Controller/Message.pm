@@ -1,34 +1,118 @@
 package SMSAPI::Controller::Message;
 use Mojo::Base "Mojolicious::Controller";
 use Amazon::SQS::Simple;
+use Mojo::JSON qw(decode_json);
+use JSON;
 
-sub index {
+sub create {
     my $c = shift;
 
-    print STDERR "-----3---{$c->openapi->valid_input}\n";
+    my $json = $c->req->body;
+    my $message_hash = decode_json($json);
 
     # Validate input request or return an error document
     my $self = $c->openapi->valid_input or openapi->error;
 
-    $c->session->{name} = "sss";
+    # Get our auth key from the headers
+    my $x_api_key = $self->req->headers->header("X-API-KEY");
+        unless ($x_api_key) {
+            $self->render(openapi => "API key is missing or invalid", status => 401);
 
-    my %item = (
-      title => "test",
-      url => "test",
-      purchased => 0,
+        return;
+    }
+
+    # Get the customer from the db
+    my $customer = $self->customer($x_api_key);
+    unless ($customer) {
+        $self->render(openapi => "API key is missing or invalid", status => 401);
+
+        return;
+    } 
+
+    my %new_message = (
+        'message_body' => $message_hash->{message_body},
+        'customer_id' =>  $customer->{id},
+        'telephone_number' => $message_hash->{telephone_number}
     );
 
-    $c->model->add_item($c->user, \%item);
+    my $new_message_id = $self->model->create_message(\%new_message);
+
+    # Data for response
+    my $data = {
+        message_id => $new_message_id
+    };
+
+    # Data response
+    $self->render(openapi => $data);
+}
+
+sub list {
+    my $c = shift;
+
+   # Validate input request or return an error document
+    my $self = $c->openapi->valid_input or openapi->error;
+    
+    # Get our auth key from the headers
+    my $x_api_key = $self->req->headers->header("X-API-KEY");
+    unless ($x_api_key) {
+        $self->render(openapi => "API key is missing or invalid", status => 401);
+
+        return;
+    }
+
+    # Get the customer from the db
+    my $customer = $self->customer($x_api_key);
+    unless ($customer) {
+        $self->render(openapi => "API key is missing or invalid", status => 401);
+
+        return;
+    }   
+ 
+    # Get messages list from db
+    my $messages = $self->model->list_messages();
+
+    # Data for response
     my $data = {
       body => {
-        item => \%item
+        messages => $messages 
       }
+    };
+
+    # Data response
+    $self->render(openapi => $data);
+}
+
+sub index {
+    my $c = shift;
+
+    # Validate input request or return an error document
+    my $self = $c->openapi->valid_input or openapi->error;
+
+   # Get our auth key from the headers
+    my $x_api_key = $self->req->headers->header("X-API-KEY");
+    unless ($x_api_key) {
+        $self->render(openapi => "API key is missing or invalid", status => 401);
+
+        return;
+    }
+
+    # Get the customer from the db
+    my $customer = $self->customer($x_api_key);
+    unless ($customer) {
+        $self->render(openapi => "API key is missing or invalid", status => 401);
+
+        return;
+    }  
+
+    my $message = $self->model->get_message($customer->{id}, $self->param('id') );
+
+    my $data = {
+        message => $message
     };
 
     #send_msg($c, \%item);
 
-    # Render back the same data as you received using the "openapi" handler
-    $self->render(openapi => $data, status => 401);
+    $self->render(openapi => $data);
 }
 
 sub send_msg {

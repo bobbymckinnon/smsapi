@@ -73,20 +73,6 @@ sub customer {
     ->hash;
 }
 
-sub list_user_names {
-  my $self = shift;
-  return $self
-    ->sqlite
-    ->db
-    ->select(
-      'customers' => ['name'],
-      undef,
-      {-asc => 'name'},
-    )
-    ->arrays
-    ->map(sub{ $_->[0] });
-}
-
 sub list_customers {
   my $self = shift;
   my $sql = <<'  SQL';
@@ -105,36 +91,76 @@ sub list_customers {
     ->hashes;
 }
 
-sub add_item {
-  my ($self, $user, $item) = @_;
-  $item->{user_id} = $user->{id};
+sub create_message {
+  my ($self, $message) = @_;
+  #$message->{customer_id} = $customer->{id};
+
   return $self
     ->sqlite
     ->db
-    ->insert('messages' => $item)
+    ->insert('messages' => $message)
     ->last_insert_id;
 }
 
-sub update_item {
-  my ($self, $item, $purchased) = @_;
+sub list_messages {
+  my $self = shift;
+  my $sql = <<'  SQL';
+    select
+      message.id,
+      message.status,
+      message.message_body
+    from messages message
+  SQL
+  return $self
+    ->sqlite
+    ->db
+    ->query($sql)
+    ->expand(json => 'messages')
+    ->hashes;
+}
+
+sub get_message {
+  my ($self, $customer_id, $message_id) = @_;
+  my $sql = <<'  SQL';
+    select
+      customer.id as customer_id,
+      customer.name as customer_name,
+      customer.balance as customer_balance,
+      customer.message_cost as customer_message_cost,
+      message.message_body,
+      message.status as message_status
+      from customers customer
+      left join messages message on message.customer_id = customer.id
+      where message.id=?
+  SQL
+  return $self
+    ->sqlite
+    ->db
+    ->query($sql, $message_id)
+    ->expand(json => 'messages')
+    ->hash;
+}
+
+sub update_message {
+  my ($self, $message, $status) = @_;
   return $self
     ->sqlite
     ->db
     ->update(
       'messages',
-      {purchased => $purchased},
-      {id => $item->{id}},
+      {status => $status},
+      {id => $message->{id}},
     )->rows;
 }
 
 sub remove_item {
-  my ($self, $item) = @_;
+  my ($self, $message) = @_;
   return $self
     ->sqlite
     ->db
     ->delete(
       'messages',
-      {id => $item->{id}},
+      {id => $message->{id}},
     )->rows;
 }
 

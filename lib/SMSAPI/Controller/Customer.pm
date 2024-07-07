@@ -32,7 +32,6 @@ sub index {
 
     # Data response
     $self->render(openapi => $data);
-
 }
 
 sub list {
@@ -63,7 +62,7 @@ sub list {
     # Data for response
     my $data = {
       body => {
-        customer => $customers 
+        customers => $customers 
       }
     };
 
