@@ -1,52 +1,75 @@
-package SMSAPI::Model::Message;
+package SMSAPI::Model::SMSAPI;
 use Mojo::Base -base;
 
 use Carp ();
 
 has sqlite => sub { Carp::croak 'sqlite is required' };
 
-sub add_user {
-  my ($self, $name) = @_;
+sub create_customer {
+  my ($self, $name, $balance, $message_cost) = @_;
           
-  print STDERR $name."\n";
-
   return $self
     ->sqlite
     ->db
     ->insert(
-      'users',
-      {name => $name},
+      'customers',
+      {
+        name => $name,
+        balance => $balance,
+        message_cost => $message_cost
+      },
     )->last_insert_id;
 }
 
-sub user {
+sub get_customer {
+  my ($self, $x_api_key) = @_;
+
+  my $sql = <<'  SQL';
+    select
+      customer.id,
+      customer.name,
+      customer.balance,
+      customer.message_cost
+    from customers customer
+    where customer.x_api_key=?
+  SQL
+  return $self
+    ->sqlite
+    ->db
+    ->query($sql, $x_api_key)
+    ->expand(json => 'customer')
+    ->hash;
+}
+
+sub customer {
   my ($self, $name) = @_;
   my $sql = <<'  SQL';
     select
-      user.id,
-      user.name,
+      customer.id,
+      customer.name,
+      customer.balance
       (
         select
-          json_group_array(item)
+          json_group_array(message)
         from (
           select json_object(
             'id',        items.id,
             'title',     items.title,
             'url',       items.url,
             'purchased', items.purchased
-          ) as item
-          from items
-          where items.user_id=user.id
+          ) as message
+          from messages
+          where messages.customer_id=customer.id
         )
-      ) as items
-    from users user
-    where user.name=?
+      ) as messages
+    from customers customer
+    where customer.x_api_key=?
   SQL
   return $self
     ->sqlite
     ->db
     ->query($sql, $name)
-    ->expand(json => 'items')
+    ->expand(json => 'messages')
     ->hash;
 }
 
@@ -56,7 +79,7 @@ sub list_user_names {
     ->sqlite
     ->db
     ->select(
-      'users' => ['name'],
+      'customers' => ['name'],
       undef,
       {-asc => 'name'},
     )
@@ -64,19 +87,21 @@ sub list_user_names {
     ->map(sub{ $_->[0] });
 }
 
-sub list_users {
+sub list_customers {
   my $self = shift;
   my $sql = <<'  SQL';
     select
-      user.id,
-      user.name
-    from users user
+      customer.id,
+      customer.name,
+      customer.balance,
+      customer.message_cost
+    from customers customer
   SQL
   return $self
     ->sqlite
     ->db
     ->query($sql)
-    ->expand(json => 'items')
+    ->expand(json => 'customers')
     ->hashes;
 }
 
@@ -86,7 +111,7 @@ sub add_item {
   return $self
     ->sqlite
     ->db
-    ->insert('items' => $item)
+    ->insert('messages' => $item)
     ->last_insert_id;
 }
 
@@ -96,7 +121,7 @@ sub update_item {
     ->sqlite
     ->db
     ->update(
-      'items',
+      'messages',
       {purchased => $purchased},
       {id => $item->{id}},
     )->rows;
@@ -108,7 +133,7 @@ sub remove_item {
     ->sqlite
     ->db
     ->delete(
-      'items',
+      'messages',
       {id => $item->{id}},
     )->rows;
 }

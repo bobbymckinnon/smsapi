@@ -5,30 +5,21 @@
     "title": "SMS API"
   },
   "paths": {
-    "/users": {
+    "/customers": {
       "get": {
-        "operationId": "users",
-        "x-mojo-name": "get_users",
-        "x-mojo-to": "user#index",
-        "summary": "List all registered users",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "customers",
+        "x-mojo-name": "get_customers",
+        "x-mojo-to": "customer#list",
+        "summary": "List all registered customers",
         "responses": {
           "200": {
-            "description": "Users response",
+            "description": "Customers response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "users": {
+                    "customers": {
                       "type": "array",
                       "items": {
                         "type": "object"
@@ -38,6 +29,32 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/customer": {
+      "get": {
+        "operationId": "customer",
+        "x-mojo-name": "get_customer",
+        "x-mojo-to": "customer#index",
+        "summary": "Show a registered customer",
+        "responses": {
+          "200": {
+            "description": "Customer response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }

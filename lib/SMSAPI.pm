@@ -3,8 +3,7 @@ use Mojo::Base 'Mojolicious', -signatures;
 
 use Mojo::File;
 use Mojo::SQLite;
-use LinkEmbedder;
-use SMSAPI::Model::Message;
+use SMSAPI::Model::SMSAPI;
 
 has sqlite => sub {
     my $app = shift;
@@ -36,13 +35,10 @@ sub startup ($self) {
 
     my $self = shift;
 
-    # Load configuration from config file
-    my $config = $self->plugin('JSONConfig');
-
-    # Load the "api.yaml" specification from the public directory
+    # Load the "openapi.json" specification from the public directory
     $self->plugin(
         OpenAPI => {
-            spec => $self->static->file("api.json")->path
+            spec => $self->static->file("openapi.json")->path
         }
     );
 
@@ -57,31 +53,20 @@ sub startup ($self) {
     $self->helper(model => sub {
         my $c = shift;
 
-        return SMSAPI::Model::Message->new(
+        return SMSAPI::Model::SMSAPI->new(
             sqlite => $c->app->sqlite,
         );
     });
 
-    $self->helper(user => sub {
-        my ($c, $name) = @_;
-
-        #$name ||= $c->stash->{name} || $c->session->{name};
-        print STDERR $c->req->headers->header('X-API-KEY')."\n";
-
-        $name = $c->req->headers->header("X-API-KEY");
-
-        return {} unless $name;
-
-        #$name = 'dan';
+    $self->helper(customer => sub {
+        my ($c, $x_api_key) = @_;
 
         my $model = $c->model;
-        my $user = $model->user($name);
-        unless ($user) {
-            $model->add_user($name);
-            $user = $model->user($name);
-        }
-
-        return $user;
+        my $customer = $model->get_customer($x_api_key);
+        
+        return unless $customer;
+            
+        return $customer;
     });
 }
 
