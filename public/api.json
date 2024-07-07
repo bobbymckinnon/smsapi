@@ -5,7 +5,44 @@
     "title": "SMS API"
   },
   "paths": {
-    "/messages": {
+    "/users": {
+      "get": {
+        "operationId": "users",
+        "x-mojo-name": "get_users",
+        "x-mojo-to": "user#index",
+        "summary": "List all registered users",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/message": {
       "post": {
         "operationId": "create_message",
         "x-mojo-name": "post_message",
@@ -70,6 +107,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -79,5 +119,31 @@
     {
       "url": "/api/v1"
     }
-  ]
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {      
+        "type": "apiKey",
+        "in": "header",       
+        "name": "X-API-KEY"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "API key is missing or invalid",
+        "headers": {
+          "WWW_Authenticate": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]  
 }

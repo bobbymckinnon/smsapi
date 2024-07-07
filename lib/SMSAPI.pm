@@ -64,13 +64,15 @@ sub startup ($self) {
 
     $self->helper(user => sub {
         my ($c, $name) = @_;
-        print STDERR "-----1---{$name}\n";
 
-        $name ||= $c->stash->{name} || $c->session->{name};
+        #$name ||= $c->stash->{name} || $c->session->{name};
+        print STDERR $c->req->headers->header('X-API-KEY')."\n";
+
+        $name = $c->req->headers->header("X-API-KEY");
 
         return {} unless $name;
-        $name = 'dan';
-        print STDERR "-----2---{$name}\n";
+
+        #$name = 'dan';
 
         my $model = $c->model;
         my $user = $model->user($name);
@@ -81,10 +83,6 @@ sub startup ($self) {
 
         return $user;
     });
-
-    my $r = $self->routes;
-
-    $r->get('/messages')->to('Message#show_add')->name('');
 }
 
 1;

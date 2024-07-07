@@ -7,6 +7,9 @@ has sqlite => sub { Carp::croak 'sqlite is required' };
 
 sub add_user {
   my ($self, $name) = @_;
+          
+  print STDERR $name."\n";
+
   return $self
     ->sqlite
     ->db
@@ -59,6 +62,22 @@ sub list_user_names {
     )
     ->arrays
     ->map(sub{ $_->[0] });
+}
+
+sub list_users {
+  my $self = shift;
+  my $sql = <<'  SQL';
+    select
+      user.id,
+      user.name
+    from users user
+  SQL
+  return $self
+    ->sqlite
+    ->db
+    ->query($sql)
+    ->expand(json => 'items')
+    ->hashes;
 }
 
 sub add_item {

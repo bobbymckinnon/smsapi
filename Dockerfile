@@ -10,6 +10,8 @@ RUN cpanm -n YAML::XS
 RUN cpanm -n Mojo::File
 RUN cpanm -n Mojo::SQLite
 RUN cpanm -n LinkEmbedder
+#RUN cpanm -n Paws::SQS
+RUN cpanm -n Amazon::SQS::Simple
 
 RUN cpanm --installdeps -n .
 
