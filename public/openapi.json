@@ -9,7 +9,7 @@
     "description": "A customer registered to send SMS messages through our API",
     "externalDocs": {
       "description": "Find out more",
-      "url": "http://swagger.io"
+      "url": "https://swagger.io"
     }
   },
   {
@@ -17,7 +17,7 @@
     "description": "SMS Message",
     "externalDocs": {
       "description": "Find out more",
-      "url": "http://swagger.io"
+      "url": "https://swagger.io"
     }
   }],
   "paths": {
@@ -176,7 +176,12 @@
   },
   "servers": [
     {
-      "url": "/api/v1"
+      "url": "https://api.nsurio.com/api/v1",
+      "variables": {
+        "protocol": {
+          "default": "https"
+        }
+      }
     }
   ],
   "components": {
