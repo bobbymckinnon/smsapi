@@ -46,7 +46,7 @@ sub startup ($self) {
     $self->plugin(
         SwaggerUI => {
             route => $self->routes()->any('api'),
-            url => "https://api.nusrio.com/api/v1",
+            url => "/api/v1",
             title => "SMS API"
         }
     );
