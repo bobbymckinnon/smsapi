@@ -6,17 +6,9 @@ sub index {
 
     # Validate input request or return an error document
     my $self = $c->openapi->valid_input or openapi->error;
-    
-    # Get our auth key from the headers
-    my $x_api_key = $self->req->headers->header("X-API-KEY");
-    unless ($x_api_key) {
-        $self->render(openapi => "API key is missing or invalid", status => 401);
-
-        return;
-    }
 
     # Get the customer from the db
-    my $customer = $self->customer($x_api_key);
+    my $customer = $self->customer();
     unless ($customer) {
         $self->render(openapi => "API key is missing or invalid", status => 401);
 
@@ -25,9 +17,7 @@ sub index {
  
     # Data for response
     my $data = {
-      body => {
         customer => $customer 
-      }
     };
 
     # Data response
@@ -39,17 +29,9 @@ sub list {
 
    # Validate input request or return an error document
     my $self = $c->openapi->valid_input or openapi->error;
-    
-    # Get our auth key from the headers
-    my $x_api_key = $self->req->headers->header("X-API-KEY");
-    unless ($x_api_key) {
-        $self->render(openapi => "API key is missing or invalid", status => 401);
-
-        return;
-    }
 
     # Get the customer from the db
-    my $customer = $self->customer($x_api_key);
+    my $customer = $self->customer();
     unless ($customer) {
         $self->render(openapi => "API key is missing or invalid", status => 401);
 
@@ -61,9 +43,7 @@ sub list {
 
     # Data for response
     my $data = {
-      body => {
         customers => $customers 
-      }
     };
 
     # Data response

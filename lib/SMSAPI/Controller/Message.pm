@@ -29,10 +29,7 @@ sub create {
         );
 
         my $new_message_id = $self->model->create_message(\%new_message);
-        my $message = $self->model->get_message($customer->{id}, $new_message_id);
-        my $data = {
-            message => $message
-        };       
+        my $message = $self->model->get_message($customer->{id}, $new_message_id);    
 
         # Data for response
         my $data = {
@@ -55,7 +52,7 @@ sub list {
     my $self = $c->openapi->valid_input or openapi->error;
 
     # Get the customer from the db
-    my $customer = $self->customer($x_api_key);
+    my $customer = $self->customer();
     unless ($customer) {
         $self->render(openapi => "API key is missing or invalid", status => 401);
 
@@ -83,7 +80,7 @@ sub index {
     my $self = $c->openapi->valid_input or openapi->error;
 
     # Get the customer from the db
-    my $customer = $self->customer($x_api_key);
+    my $customer = $self->customer();
     unless ($customer) {
         $self->render(openapi => "API key is missing or invalid", status => 401);
 
