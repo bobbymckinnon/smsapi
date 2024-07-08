@@ -85,39 +85,6 @@
       }
     },
     "/message": {
-      "post": {
-        "operationId": "create_message",
-        "x-mojo-name": "post_message",
-        "x-mojo-to": "message#create",
-        "summary": "Create a sms messages for a customer, queue message to AWS SQS for processing",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Create Message Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "400": {
-            "description": "Invalid Request"
-          }
-        }
-      },
       "get": {
         "operationId": "message",
         "x-mojo-name": "get_message",
@@ -152,7 +119,38 @@
             "$ref": "#/components/responses/UnauthorizedError"
           }
         }
-      }
+      },
+      "post": {
+        "operationId": "create_message",
+        "x-mojo-name": "post_message",
+        "x-mojo-to": "message#create",
+        "summary": "Create a sms messages for a customer, queue message to AWS SQS for processing",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Create Message Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      } 
     }
   },
   "servers": [
@@ -161,6 +159,20 @@
     }
   ],
   "components": {
+    "schemas": {
+      "CreateMessage": {
+        "type": "object",
+        "required": ["message_body", "telephone_number"],
+        "properties": {
+          "message_body": {
+            "type": "string"
+          },
+          "telephone_number": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "ApiKeyAuth": {      
         "type": "apiKey",

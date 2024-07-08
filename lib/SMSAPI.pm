@@ -68,6 +68,22 @@ sub startup ($self) {
             
         return $customer;
     });
+
+    $self->helper(can_send => sub {
+        my ($c, $customer) = @_;
+
+        if ($customer->{balance} >= $customer->{message_cost}) {
+
+            print STDERR "-----4---{$customer->{balance}}\n";
+
+            my $model = $c->model;
+            $model->update_customer_balance($customer);
+
+            return 1;
+        }
+
+        return;
+    });
 }
 
 1;

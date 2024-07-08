@@ -28,8 +28,8 @@ sub get_customer {
     select
       customer.id,
       customer.name,
-      customer.balance,
-      customer.message_cost
+      cast(customer.balance as float) as balance,
+      cast(customer.message_cost as float) /100 as message_cost
     from customers customer
     where customer.x_api_key=?
   SQL
@@ -79,8 +79,8 @@ sub list_customers {
     select
       customer.id,
       customer.name,
-      customer.balance,
-      customer.message_cost
+      cast(customer.balance as float) as balance,
+      cast(customer.message_cost as float) /100 as message_cost
     from customers customer
   SQL
   return $self
@@ -93,7 +93,6 @@ sub list_customers {
 
 sub create_message {
   my ($self, $message) = @_;
-  #$message->{customer_id} = $customer->{id};
 
   return $self
     ->sqlite
@@ -108,7 +107,8 @@ sub list_messages {
     select
       message.id,
       message.status,
-      message.message_body
+      message.message_body,
+      message.telephone_number
     from messages message
   SQL
   return $self
@@ -125,10 +125,11 @@ sub get_message {
     select
       customer.id as customer_id,
       customer.name as customer_name,
-      customer.balance as customer_balance,
-      customer.message_cost as customer_message_cost,
+      cast(customer.balance as float) as customer_balance,
+      cast(customer.message_cost as float) /100 as customer_message_cost,
       message.message_body,
-      message.status as message_status
+      message.status as message_status,
+      message.telephone_number
       from customers customer
       left join messages message on message.customer_id = customer.id
       where message.id=?
@@ -153,7 +154,20 @@ sub update_message {
     )->rows;
 }
 
-sub remove_item {
+sub update_customer_balance {
+  my ($self, $customer) = @_;
+
+  return $self
+    ->sqlite
+    ->db
+    ->update(
+      'customers',
+      {balance => ($customer->{balance} - $customer->{message_cost})},
+      {id => $customer->{id}},
+    )->rows;
+}
+
+sub delete_message {
   my ($self, $message) = @_;
   return $self
     ->sqlite
