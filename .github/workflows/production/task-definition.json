@@ -18,6 +18,15 @@
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
+            "secrets": [
+            {
+                "name": "ACCESS_KEY_ID",
+                "valueFrom": "arn:aws:ssm:eu-central-1:489049224067:parameter/ACCESS_KEY_ID"
+            },
+            {
+                "name": "SECRET_ACCESS_KEY",
+                "valueFrom": "arn:aws:ssm:eu-central-1:489049224067:parameter/SECRET_ACCESS_KEY"
+             }],
             "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",

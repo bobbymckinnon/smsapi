@@ -36,8 +36,11 @@ sub create {
             message => $message
         };
 
-        # Data response
-        $self->render(openapi => $data);
+        my $queue = $self->queue_message($message);
+        if ($queue) {
+            # Data response
+            $self->render(openapi => $data);
+        }
 
         return;
     }
@@ -106,7 +109,6 @@ sub send_msg {
     print STDERR "-----4---{$access_key}\n";
 
     # Create an SQS object
-  
     my $sqs = new Amazon::SQS::Simple(
         $access_key, 
         $secret_key

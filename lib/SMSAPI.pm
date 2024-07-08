@@ -1,9 +1,10 @@
 package SMSAPI;
+use JSON;
 use Mojo::Base 'Mojolicious', -signatures;
-
 use Mojo::File;
 use Mojo::SQLite;
 use SMSAPI::Model::SMSAPI;
+use Amazon::SQS::Simple;
 
 has sqlite => sub {
     my $app = shift;
@@ -78,6 +79,29 @@ sub startup ($self) {
             my $model = $c->model;
             $model->update_customer_balance($customer);
 
+            return 1;
+        }
+
+        return;
+    });
+
+    $self->helper(queue_message => sub {
+        my ($c, $message) = @_;
+
+        my $access_key = "AKIAXDXM26OBZRESMDNN"; # Your AWS Access Key ID
+        my $secret_key = "uLC9/4iB9f3VM6JRmtobT9IJAGIVF26yF1ZvsYFQ"; # Your AWS Secret Key
+
+        # Create an SQS object
+        my $sqs = new Amazon::SQS::Simple(
+            $access_key, 
+            $secret_key
+        );
+
+        my $mm = encode_json($message);
+        my $q = $sqs->CreateQueue("smsapi");
+        my $response = $q->SendMessage($message);
+
+        if ($response) {
             return 1;
         }
 
