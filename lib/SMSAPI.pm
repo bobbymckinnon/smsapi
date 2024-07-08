@@ -61,6 +61,8 @@ sub startup ($self) {
     $self->helper(customer => sub {
         my ($c, $x_api_key) = @_;
 
+        my $x_api_key = $c->req->headers->header("X-API-KEY");
+
         my $model = $c->model;
         my $customer = $model->get_customer($x_api_key);
         
@@ -73,9 +75,6 @@ sub startup ($self) {
         my ($c, $customer) = @_;
 
         if ($customer->{balance} >= $customer->{message_cost}) {
-
-            print STDERR "-----4---{$customer->{balance}}\n";
-
             my $model = $c->model;
             $model->update_customer_balance($customer);
 

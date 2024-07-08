@@ -13,16 +13,8 @@ sub create {
     my $json = $self->req->body;
     my $message_hash = decode_json($json);
 
-     # Get our auth key from the headers
-    my $x_api_key = $self->req->headers->header("X-API-KEY");
-        unless ($x_api_key) {
-            $self->render(openapi => "API key is missing or invalid", status => 401);
-
-        return;
-    }
-
     # Get the customer from the db
-    my $customer = $self->customer($x_api_key);
+    my $customer = $self->customer();
     unless ($customer) {
         $self->render(openapi => "API key is missing or invalid", status => 401);
 
@@ -37,16 +29,17 @@ sub create {
         );
 
         my $new_message_id = $self->model->create_message(\%new_message);
+        my $message = $self->model->get_message($customer->{id}, $new_message_id);
+        my $data = {
+            message => $message
+        };       
 
         # Data for response
         my $data = {
-            message_id => "asdasdasd"
+            message => $message
         };
 
-        print STDERR "----2---{$new_message_id}\n";
-
-
-           # Data response
+        # Data response
         $self->render(openapi => $data);
 
         return;
@@ -60,14 +53,6 @@ sub list {
 
    # Validate input request or return an error document
     my $self = $c->openapi->valid_input or openapi->error;
-    
-    # Get our auth key from the headers
-    my $x_api_key = $self->req->headers->header("X-API-KEY");
-    unless ($x_api_key) {
-        $self->render(openapi => "API key is missing or invalid", status => 401);
-
-        return;
-    }
 
     # Get the customer from the db
     my $customer = $self->customer($x_api_key);
@@ -96,14 +81,6 @@ sub index {
 
     # Validate input request or return an error document
     my $self = $c->openapi->valid_input or openapi->error;
-
-   # Get our auth key from the headers
-    my $x_api_key = $self->req->headers->header("X-API-KEY");
-    unless ($x_api_key) {
-        $self->render(openapi => "API key is missing or invalid", status => 401);
-
-        return;
-    }
 
     # Get the customer from the db
     my $customer = $self->customer($x_api_key);
