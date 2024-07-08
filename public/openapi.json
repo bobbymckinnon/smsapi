@@ -176,12 +176,7 @@
   },
   "servers": [
     {
-      "url": "https://api.nsurio.com/api/v1",
-      "variables": {
-        "protocol": {
-          "default": "https"
-        }
-      }
+      "url": "/api/v1"
     }
   ],
   "components": {
