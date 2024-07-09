@@ -5,6 +5,7 @@
 </p>
 
 ## SMS API
+Small REST API written with Perl's Mojolicous framework.
 
 ### Intro
 Business is asking us to build a new platform to be launched as a new product in the form of an

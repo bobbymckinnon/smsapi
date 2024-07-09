@@ -106,8 +106,6 @@ sub send_msg {
     my $access_key = "AKIAXDXM26OBZRESMDNN"; # Your AWS Access Key ID
     my $secret_key = "uLC9/4iB9f3VM6JRmtobT9IJAGIVF26yF1ZvsYFQ"; # Your AWS Secret Key
 
-    print STDERR "-----4---{$access_key}\n";
-
     # Create an SQS object
     my $sqs = new Amazon::SQS::Simple(
         $access_key, 

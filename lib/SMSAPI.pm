@@ -88,11 +88,9 @@ sub startup ($self) {
     $self->helper(queue_message => sub {
         my ($c, $message) = @_;
 
-        my $access_key = "AKIAXDXM26OBZRESMDNN"; #$ENV{ACCESS_KEY_ID}; #"AKIAXDXM26OBZRESMDNN"; # Your AWS Access Key ID
-        my $secret_key = "uLC9/4iB9f3VM6JRmtobT9IJAGIVF26yF1ZvsYFQ"; #$ENV{SECRET_ACCESS_KEY};#"uLC9/4iB9f3VM6JRmtobT9IJAGIVF26yF1ZvsYFQ"; # Your AWS Secret Key
+        my $access_key = $ENV{ACCESS_KEY_ID}; #Your AWS Access Key ID
+        my $secret_key = $ENV{SECRET_ACCESS_KEY}; #Your AWS Secret Key
         
-        print STDERR "-----1---{$access_key}\n";
-
         # Create an SQS object
         my $sqs = new Amazon::SQS::Simple(
             $access_key, 
